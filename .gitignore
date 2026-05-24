@@ -1,0 +1,6 @@
+# .NET Build Artifacts
+bin/
+obj/
+
+# Local User Settings & Secret Files
+appsettings.Development.json
