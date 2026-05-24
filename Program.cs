@@ -1,5 +1,7 @@
 using LineNoteBot.Data;
 using LineNoteBot.Middlewares;
+using LineNoteBot.Repositories;
+using LineNoteBot.Repositories.Interfaces;
 using LineNoteBot.Services;
 using LineNoteBot.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +41,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddScoped<IAiQueryRateLimiter, AiQueryRateLimiter>();
+builder.Services.AddScoped<INoteService, NoteService>();
+builder.Services.AddScoped<INoteRepository, NoteRepository>();
 
 var app = builder.Build();
 
