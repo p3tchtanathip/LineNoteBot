@@ -1,6 +1,8 @@
+using LineNoteBot.Data;
 using LineNoteBot.Middlewares;
 using LineNoteBot.Services;
 using LineNoteBot.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,8 +31,13 @@ builder.Services.AddHttpClient<ILineMessageService, LineMessageService>(c =>
     c.Timeout = TimeSpan.FromSeconds(15);
 });
 
+builder.Services.AddDbContext<AppDbContext>(o =>
+    o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
+
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddScoped<IAiQueryRateLimiter, AiQueryRateLimiter>();
 
 var app = builder.Build();
@@ -45,6 +52,12 @@ app.Use((context, next) =>
 
     return next();
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseMiddleware<LineSignatureMiddleware>();
 app.MapControllers();
